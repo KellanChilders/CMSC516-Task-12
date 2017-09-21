@@ -2,6 +2,26 @@ import pandas as pd
 from timedmethod import timedmethod
 
 
+class ArgumentData:
+    def __init__(self, **kwargs):
+        self.train, self.test = kwargs.get('train', []), kwargs.get('test', [])
+
+        cla = kwargs.get('cla')
+        if cla is not None:
+            self.train, self.test = self.generate_datasets(**cla)
+
+
+    # @timedmethod(4)
+    def generate_datasets(self, **kwargs):
+        from os.path import join
+        train_path = join(kwargs['d'], kwargs['trd'], kwargs['tr'])
+        test_path = join(kwargs['d'], kwargs['tsd'], kwargs['ts'])
+
+        training = pd.read_csv(train_path, sep='\t')
+        testing = None if not kwargs['t'] else pd.read_csv(test_path, sep='\t')
+        return training, testing
+
+
 def reader_args():
     import argparse as ap
 
@@ -19,19 +39,11 @@ def reader_args():
                         type=str, default='test')
     parser.add_argument('-t', help='Do testing',
                         type=bool, default=False)
-    return parser.parse_args()
-
-
-@timedmethod(4)
-def generate_datasets(cla):
-    from os.path import join
-    training = pd.read_csv(join(cla.d, cla.trd, cla.tr), sep='\t')
-    testing = None if not cla.t else \
-        pd.read_csv(join(cla.d, cla.tsd, cla.ts), sep='\t')
-    return training, testing
+    return vars(parser.parse_args())
 
 
 if __name__ == '__main__':
     args = reader_args()
-    train, test = generate_datasets(args)
-    print(list(train))
+    datasets = ArgumentData(cla=args)
+    # print(list(train))
+    print(datasets.train.head(1).reason[0])

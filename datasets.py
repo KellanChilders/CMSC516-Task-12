@@ -1,29 +1,22 @@
 import pandas as pd
+import nltk
 from timedmethod import timedmethod
 
 
-class ArgumentData:
-    # I'm movin' this! Look to datasets.py for a better verstion.
+class SemEvalData:
     def __init__(self, **kwargs):
-        self.train, self.test = kwargs.get('train', []), kwargs.get('test', [])
+        self.data = kwargs.get('data', {})
+        if len(self.data) > 0:
+            return
 
-        cla = kwargs.get('cla')
-        if cla is not None:
-            train_raw, test_raw = self.generate_datasets(**cla)
+        # raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
+        raw_data = pd.read_csv(kwargs['file'], sep='\t')
+        print(list(raw_data))
+        raw_data = raw_data.to_records()
+        self.data = {x[1]: [] for x in raw_data}
+        print(self.data)
 
-
-
-    # @timedmethod(4)
-    def generate_datasets(self, **kwargs):
-        from os.path import join
-        train_path = join(kwargs['d'], kwargs['trd'], kwargs['tr'])
-        test_path = join(kwargs['d'], kwargs['tsd'], kwargs['ts'])
-
-        training = pd.read_csv(train_path, sep='\t')
-        testing = None if not kwargs['t'] else pd.read_csv(test_path, sep='\t')
-        return training, testing
-
-    def get_ngrams(self):
+    def add_unigrams(self):
         pass
 
 
@@ -44,11 +37,13 @@ def reader_args():
                         type=str, default='test')
     parser.add_argument('-t', help='Do testing',
                         type=bool, default=False)
-    return vars(parser.parse_args())
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = reader_args()
-    datasets = ArgumentData(cla=args)
+    from os.path import join
+    file = join(args.d, args.trd, args.tr)
+    datasets = SemEvalData(file=file)
     # print(list(train))
-    print(datasets.train.head(1).reason[0])
+    # print(datasets.train.head(1).reason[0])

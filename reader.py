@@ -8,7 +8,8 @@ class ArgumentData:
 
         cla = kwargs.get('cla')
         if cla is not None:
-            self.train, self.test = self.generate_datasets(**cla)
+            train_raw, test_raw = self.generate_datasets(**cla)
+
 
 
     # @timedmethod(4)
@@ -20,6 +21,9 @@ class ArgumentData:
         training = pd.read_csv(train_path, sep='\t')
         testing = None if not kwargs['t'] else pd.read_csv(test_path, sep='\t')
         return training, testing
+
+    def get_ngrams(self):
+        pass
 
 
 def reader_args():

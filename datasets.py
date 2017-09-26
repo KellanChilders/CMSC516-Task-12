@@ -10,19 +10,37 @@ class SemEvalData:
             return
 
         raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
+
+        # Data that has been given in file.
         self.pretext = {x[1]: list(x)[5:] for x in raw_data}
         self.warrants = {x[1]: [x[2], x[3]] for x in raw_data}
         self.tags = {x[1]: x[4] for x in raw_data}
 
         # Data that has been generated from the pretext & warrants.
         self.p_data = {x[1]: [] for x in raw_data}
-        self.w_data = {x[1]: [] for x in raw_data}
+        self.w_data = {x[1]: {0: [], 1: []} for x in raw_data}
 
     def add_ngrams(self):
-        for key, value in self.data.items():
-            # nltk.word_tokenize(text)
-            # print(key, value)
-            pass
+        """Add unigrams and bigrams to the pretext and each warrant."""
+        for key, value in self.pretext.items():
+            unigrams = [nltk.word_tokenize(sent) for sent in value]
+            bigrams = [list(nltk.ngrams(sent, 2)) for sent in unigrams]
+
+            unigrams = [x for i in unigrams for x in i]
+            bigrams = [x for i in bigrams for x in i]
+
+            self.p_data[key] += unigrams
+            self.p_data[key] += bigrams
+
+        for key, value in self.warrants.items():
+            unigrams = [nltk.word_tokenize(sent) for sent in value]
+            bigrams = [list(nltk.ngrams(sent, 2)) for sent in unigrams]
+
+            self.w_data[key][0] += unigrams[0]
+            self.w_data[key][0] += bigrams[0]
+
+            self.w_data[key][1] += unigrams[1]
+            self.w_data[key][1] += bigrams[1]
 
 
 def reader_args():
@@ -46,9 +64,11 @@ def reader_args():
 
 
 if __name__ == '__main__':
-    args = reader_args()
     from os.path import join
+    args = reader_args()
+
     file = join(args.d, args.trd, args.tr)
     dataset = SemEvalData(file=file)
-    # print(list(train))
-    # print(datasets.train.head(1).reason[0])
+
+    dataset.add_ngrams()
+    print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])

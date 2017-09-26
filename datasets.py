@@ -9,15 +9,20 @@ class SemEvalData:
         if len(self.data) > 0:
             return
 
-        # raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
-        raw_data = pd.read_csv(kwargs['file'], sep='\t')
-        print(list(raw_data))
-        raw_data = raw_data.to_records()
-        self.data = {x[1]: [] for x in raw_data}
-        print(self.data)
+        raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
+        self.pretext = {x[1]: list(x)[5:] for x in raw_data}
+        self.warrants = {x[1]: [x[2], x[3]] for x in raw_data}
+        self.tags = {x[1]: x[4] for x in raw_data}
 
-    def add_unigrams(self):
-        pass
+        # Data that has been generated from the pretext & warrants.
+        self.p_data = {x[1]: [] for x in raw_data}
+        self.w_data = {x[1]: [] for x in raw_data}
+
+    def add_ngrams(self):
+        for key, value in self.data.items():
+            # nltk.word_tokenize(text)
+            # print(key, value)
+            pass
 
 
 def reader_args():
@@ -44,6 +49,6 @@ if __name__ == '__main__':
     args = reader_args()
     from os.path import join
     file = join(args.d, args.trd, args.tr)
-    datasets = SemEvalData(file=file)
+    dataset = SemEvalData(file=file)
     # print(list(train))
     # print(datasets.train.head(1).reason[0])

@@ -33,7 +33,8 @@ class WordEmbedder:
         mag = self.distance(vec)
         return [x/mag for x in vec]
 
-    def similarity(self, vec1, vec2):
+    @staticmethod
+    def similarity(vec1, vec2):
         return sum(x*y for x, y in zip(vec1, vec2)) /\
                (math.sqrt(sum(x**2 for x in vec1))
                 *math.sqrt(sum(x**2 for x in vec2)))

@@ -1,4 +1,5 @@
 import math
+from functools import reduce
 import nltk
 import nltk.corpus as nc
 import gensim.models as gs
@@ -23,21 +24,41 @@ class WordEmbedder:
                 else self.model[word] for word in sent]
 
     @staticmethod
-    def similarity(vec1, vec2):
+    def distance(vector):
+        return math.sqrt(sum(v**2 for v in vector))
+
+    def sum_normalize(self, vector):
+        vec = [reduce(lambda x, y: x + y, (v[i] for v in vector))
+               for i in range(self.vec_length)]
+        mag = self.distance(vec)
+        return [x/mag for x in vec]
+
+    def similarity(self, vec1, vec2):
         return sum(x*y for x, y in zip(vec1, vec2)) /\
                (math.sqrt(sum(x**2 for x in vec1))
                 *math.sqrt(sum(x**2 for x in vec2)))
 
     def closest(self, pretext, warrants):
         base = {key: self.get_vector(sent) for key, sent in pretext.items()}
-        claim = {key: {0: self.get_vector(sent[0]), 1: self.get_vector(sent[1])}
+        claim = {key: {0: self.get_vector(sent[0]),
+                       1: self.get_vector(sent[1])}
                  for key, sent in warrants.items()}
+
+        base = {key: self.sum_normalize(val) for key, val in base.items()}
+        claim = {key: {0: self.sum_normalize(val[0]),
+                       1: self.sum_normalize(val[1])}
+                 for key, val in claim.items()}
 
         compare = {key: {0: self.similarity(sent, claim[key][0]),
                          1: self.similarity(sent, claim[key][0])}
                    for key, sent in base.items()}
         return {key: 0 if item[0] > item[1] else 1
                 for key, item in compare.items()}
+
+    @staticmethod
+    def to_csv(prediction):
+        return '\n'.join('{}\t{}'.format(key, value)
+                         for key, value in prediction.items())
 
 
 if __name__ == '__main__':
@@ -47,7 +68,7 @@ if __name__ == '__main__':
 
     embedder = WordEmbedder()
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
-    print(predictions)
+    print(embedder.to_csv(predictions))
 
     example = '13319707_476_A1DJNUJZN8FE7N'
     # print(dataset.w_data[example][0])

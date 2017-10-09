@@ -1,6 +1,6 @@
 import pandas as pd
 import nltk
-from timedmethod import timedmethod
+import re
 
 
 class SemEvalData:
@@ -34,6 +34,21 @@ class SemEvalData:
                 tokens = nltk.word_tokenize(item)
                 tokens = [x for x in tokens if x not in stop]
                 value[i] = ' '.join(tokens)
+            self.warrants[key] = value
+
+    def expand_contraction(self):
+        """Replace n't with not."""
+        contractions = {"n't": ' not '}
+        for key, value in self.pretext.items():
+            for i, item in enumerate(value):
+                item = re.sub(r'n\'t ', ' not ', item)
+                value[i] = item
+            self.pretext[key] = value
+
+        for key, value in self.warrants.items():
+            for i, item in enumerate(value):
+                item = re.sub(r'n\'t ', ' not ', item)
+                value[i] = item
             self.warrants[key] = value
 
     def tag_pos(self):
@@ -89,6 +104,11 @@ class SemEvalData:
 
             self.w_data[key][1] += unigrams[1]
             self.w_data[key][1] += bigrams[1]
+
+    def remove_common(self):
+        self.w_data = {key: {0: [x for x in val[0] if x not in val[1]],
+                             1: [x for x in val[1] if x not in val[0]]}
+                       for key, val in self.w_data.items()}
 
 
 if __name__ == '__main__':

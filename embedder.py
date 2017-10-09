@@ -65,6 +65,8 @@ class WordEmbedder:
 if __name__ == '__main__':
     import args
     dataset = SemEvalData(file=args.train_file())
+    dataset.expand_contraction()
+    dataset.remove_common()
     dataset.add_bag_words()
 
     embedder = WordEmbedder()

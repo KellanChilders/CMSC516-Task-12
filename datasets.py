@@ -20,6 +20,54 @@ class SemEvalData:
         self.p_data = {x[1]: [] for x in raw_data}
         self.w_data = {x[1]: {0: [], 1: []} for x in raw_data}
 
+    def remove_stop_words(self, stop=('a', 'an', 'the', 'to')):
+        """Remove common words from pretext and warrants."""
+        for key, value in self.pretext.items():
+            for i, item in enumerate(value):
+                tokens = nltk.word_tokenize(item)
+                tokens = [x for x in tokens if x not in stop]
+                value[i] = ' '.join(tokens)
+            self.pretext[key] = value
+
+        for key, value in self.warrants.items():
+            for i, item in enumerate(value):
+                tokens = nltk.word_tokenize(item)
+                tokens = [x for x in tokens if x not in stop]
+                value[i] = ' '.join(tokens)
+            self.warrants[key] = value
+
+    def tag_pos(self):
+        """Tag each word in pretext and warrants."""
+        for key, value in self.pretext.items():
+            for i, item in enumerate(value):
+                tokens = nltk.word_tokenize(item)
+                tags = ' '.join('/'.join(x) for x in nltk.pos_tag(tokens))
+                value[i] = tags
+            self.pretext[key] = value
+
+        for key, value in self.warrants.items():
+            for i, item in enumerate(value):
+                tokens = nltk.word_tokenize(item)
+                tags = ' '.join('/'.join(x) for x in nltk.pos_tag(tokens))
+                value[i] = tags
+            self.warrants[key] = value
+
+    def add_bag_words(self):
+        """Add only unigrams to the pretext and each warrant."""
+        for key, value in self.pretext.items():
+            unigrams = [nltk.word_tokenize(sent) for sent in value]
+
+            unigrams = [x for i in unigrams for x in i]
+
+            self.p_data[key] += unigrams
+
+        for key, value in self.warrants.items():
+            unigrams = [nltk.word_tokenize(sent) for sent in value]
+
+            self.w_data[key][0] += unigrams[0]
+
+            self.w_data[key][1] += unigrams[1]
+
     def add_ngrams(self):
         """Add unigrams and bigrams to the pretext and each warrant."""
         for key, value in self.pretext.items():
@@ -43,32 +91,11 @@ class SemEvalData:
             self.w_data[key][1] += bigrams[1]
 
 
-def reader_args():
-    import argparse as ap
-
-    parser = ap.ArgumentParser(
-        description='Train an evaluator to decide between arguments.')
-    parser.add_argument('-d', help='Datasets directory',
-                        type=str, default='data')
-    parser.add_argument('-tr', help='Training dataset',
-                        type=str, default='train-full.txt')
-    parser.add_argument('-trd', help='Training directory',
-                        type=str, default='train')
-    parser.add_argument('-ts', help='Testing dataset',
-                        type=str, default='test.tsv')
-    parser.add_argument('-tsd', help='Testing directory',
-                        type=str, default='test')
-    parser.add_argument('-t', help='Do testing',
-                        type=bool, default=False)
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
-    from os.path import join
-    args = reader_args()
+    import args
+    dataset = SemEvalData(file=args.train_file())
 
-    file = join(args.d, args.trd, args.tr)
-    dataset = SemEvalData(file=file)
-
+    dataset.remove_stop_words()
+    dataset.tag_pos()
     dataset.add_ngrams()
     print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])

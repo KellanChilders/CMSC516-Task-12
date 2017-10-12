@@ -1,8 +1,8 @@
 import math
 from functools import reduce
-import nltk
 import nltk.corpus as nc
 import gensim.models as gs
+from gensim.corpora import WikiCorpus
 from datasets import SemEvalData
 
 
@@ -28,6 +28,9 @@ class WordEmbedder:
         return math.sqrt(sum(v**2 for v in vector))
 
     def sum_normalize(self, vector):
+        if len(vector) == 0:
+            return [0 for _ in range(self.vec_length)]
+
         vec = [reduce(lambda x, y: x + y, (v[i] for v in vector))
                for i in range(self.vec_length)]
         mag = self.distance(vec)
@@ -35,6 +38,9 @@ class WordEmbedder:
 
     @staticmethod
     def similarity(vec1, vec2):
+        if sum(vec1) == 0 or sum(vec2) == 0:
+            return 0
+
         return sum(x*y for x, y in zip(vec1, vec2)) /\
                (math.sqrt(sum(x**2 for x in vec1))
                 *math.sqrt(sum(x**2 for x in vec2)))
@@ -65,14 +71,19 @@ class WordEmbedder:
 if __name__ == '__main__':
     import args
     dataset = SemEvalData(file=args.train_file())
+
     dataset.expand_contraction()
     dataset.remove_common()
     dataset.add_bag_words()
 
-    embedder = WordEmbedder()
+    # print(nc.brown.sents())
+    # wiki = WikiCorpus('wiki.en.text', lemmatize=False, dictionary={})
+    # print(wiki.get_texts())
+
+    embedder = WordEmbedder(train=nc.brown.sents())
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
     print(embedder.to_csv(predictions))
 
-    example = '13319707_476_A1DJNUJZN8FE7N'
+    # example = '13319707_476_A1DJNUJZN8FE7N'
     # print(dataset.w_data[example][0])
     # print(embedder.get_vector(dataset.w_data[example][0]))

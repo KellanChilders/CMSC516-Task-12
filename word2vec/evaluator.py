@@ -59,6 +59,9 @@ if __name__ == '__main__':
               'and dataset location (-tr) and execute script again.')
         raise SystemExit
 
+    dataset.expand_contraction()
+    dataset.remove_common()
+
     # Demonstrate baseline performance.
     print('Predicting via majority decider')
     from baseline import MajorityDecider

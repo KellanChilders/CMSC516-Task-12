@@ -1,4 +1,4 @@
-﻿README DOCUMENTATION:
+README DOCUMENTATION:
 
 AUTHORS: Megan Davis, Kellan Childers, Andrew Ward
 
@@ -73,9 +73,21 @@ Overall Accuracy: 53.4810126582278
 
 *******************************************************************
 Word2Vec Implementation:
+This approach attempts to look at the relatedness between the two warrants and the claim. The hypothesis is that a warrant following the emotion of the claim would be more likely to be authored by the same individual.
 
-<introduction>
+Algorithm:
+1. Load the dataset, and separate it into claim (everything except warrants & tag), warrants, and true tag.
+2. Find the unigrams for each warrant and claim and use these as the warrants and claims from now on.
+2. Remove shared words from each claim (if a word.
+3. Replace n't with not.
+4. Train a word2vec network using the Brown corpus.
+5. For each argument
+	1) Use the word2vec model to embed each word in the warrants and claim.
+	2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.
+	3) Normalize the claim and warrant vectors so they are each of magnitude 1.
+	4) Take the cosine similarity between the claim and each warrant.
+	6) Predict the warrant with the highest similarity, or warrant 1 if equal.
 
-<algorithm>
-
-<how to run>
+Executing the program:
+Run python3 evaluator.py or runit.sh
+Alternatively, run python3 evaluator.py -h to view command line arguments.

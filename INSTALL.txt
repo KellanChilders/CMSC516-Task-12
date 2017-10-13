@@ -19,5 +19,10 @@ NOTES:
 Lingua::EN::Tagger is currently part of the development process and not being used in the first code drop solution. However stripping this code out wouldn't fully represent the avenues attempted.
 
 INSTALL INSTRUCTIONS FOR WORD2VEC IMPLEMENTATION
-AUTHOR: Kellan ChildersLu
-<instructions>
+AUTHOR: Kellan Childers
+
+Uses python3.x
+Install python packages nltk, pandas, & gensim
+Download the Brown corpus for nltk
+	- Quickest route is to execute <python3 -m nltk.downloader brown> in shell
+	- Must be done after installing nltk (and in environment where nltk is installed if using virtual environments)

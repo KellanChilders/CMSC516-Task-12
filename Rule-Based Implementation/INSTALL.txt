@@ -1,0 +1,23 @@
+INSTALL INSTRUCTIONS:
+
+
+INSTALL INSTRUCTIONS FOR SEMEVAL_SCRIPT.pl
+AUTHOR: Megan Davis
+
+Systems confirmed working on:
+Windows 10 using Perl 5 Version 24
+Ubuntu using Perl 5 Version 24
+
+
+1) Confirm Perl is installed using command perl -v
+2) Install Lingua::EN::Tagger using CPAN
+	2.1) Open Command Line and type CPAN	
+	2.2) Type install Lingua::EN::Tagger
+
+	
+NOTES:
+Lingua::EN::Tagger is currently part of the development process and not being used in the first code drop solution. However stripping this code out wouldn't fully represent the avenues attempted.
+
+INSTALL INSTRUCTIONS FOR WORD2VEC IMPLEMENTATION
+AUTHOR: Kellan ChildersLu
+<instructions>

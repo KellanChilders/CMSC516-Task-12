@@ -1,12 +1,19 @@
+"""
+Author      Kellan Childers
+Function    Contains the word2vec implementation of our algorithm.
+            The WordEmbedder class trains via a corpus, then is predicts
+            the warrant which is most related to the claim.
+"""
 import math
 from functools import reduce
 import nltk.corpus as nc
 import gensim.models as gs
-from gensim.corpora import WikiCorpus
+# from gensim.corpora import WikiCorpus
 from datasets import SemEvalData
 
 
 class WordEmbedder:
+    """Predict warrants based on word2vec similarity."""
     def __init__(self, **kwargs):
         training_corpora = kwargs.get('train', nc.brown.sents())
         min_count = kwargs.get('count', 1)
@@ -18,6 +25,7 @@ class WordEmbedder:
         self.vec_length = len(self.model[baseline])
 
     def get_vector(self, sent):
+        """Get the vector representations of every word in a sentence."""
         if type(sent) is str:
             sent = sent.split()
         return [[0 for _ in range(self.vec_length)] if word not in self.model
@@ -25,9 +33,11 @@ class WordEmbedder:
 
     @staticmethod
     def distance(vector):
+        """Calculate euclidean distance of a vector."""
         return math.sqrt(sum(v**2 for v in vector))
 
     def sum_normalize(self, vector):
+        """Sum every vector in a sentence, then normalize to distance 1."""
         if len(vector) == 0:
             return [0 for _ in range(self.vec_length)]
 
@@ -36,42 +46,49 @@ class WordEmbedder:
         mag = self.distance(vec)
         return [x/mag for x in vec]
 
-    @staticmethod
-    def similarity(vec1, vec2):
+    def similarity(self, vec1, vec2):
+        """Calculate the cosine similarity between two vectors."""
         if sum(vec1) == 0 or sum(vec2) == 0:
             return 0
+        dot = sum(x*y for x, y in zip(vec1, vec2))
 
-        return sum(x*y for x, y in zip(vec1, vec2)) /\
-               (math.sqrt(sum(x**2 for x in vec1))
-                *math.sqrt(sum(x**2 for x in vec2)))
+        return dot / (self.distance(vec1)*self.distance(vec2))
 
     def closest(self, pretext, warrants):
+        """Predict the closest warrant to the claim."""
+        # Find word embeddings of warrants & claim.
         base = {key: self.get_vector(sent) for key, sent in pretext.items()}
         claim = {key: {0: self.get_vector(sent[0]),
                        1: self.get_vector(sent[1])}
                  for key, sent in warrants.items()}
 
+        # Condense word vectors into normalize sentence vector.
         base = {key: self.sum_normalize(val) for key, val in base.items()}
         claim = {key: {0: self.sum_normalize(val[0]),
                        1: self.sum_normalize(val[1])}
                  for key, val in claim.items()}
 
+        # Find the cosine similarity between claim and warrants.
         compare = {key: {0: self.similarity(sent, claim[key][0]),
                          1: self.similarity(sent, claim[key][0])}
                    for key, sent in base.items()}
+        # Pick most likely, defaulting to warrant1.
         return {key: 0 if item[0] > item[1] else 1
                 for key, item in compare.items()}
 
     @staticmethod
     def to_csv(prediction):
+        """Format into csv for storing results."""
         return '\n'.join('{}\t{}'.format(key, value)
                          for key, value in prediction.items())
 
 
 if __name__ == '__main__':
+    """Simple demonstration of embedder."""
     import args
     dataset = SemEvalData(file=args.train_file())
 
+    # Some preprocessing steps for dataset.
     dataset.expand_contraction()
     dataset.remove_common()
     dataset.add_bag_words()
@@ -80,6 +97,7 @@ if __name__ == '__main__':
     # wiki = WikiCorpus('wiki.en.text', lemmatize=False, dictionary={})
     # print(wiki.get_texts())
 
+    # Train, predict, and show as csv.
     embedder = WordEmbedder(train=nc.brown.sents())
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
     print(embedder.to_csv(predictions))

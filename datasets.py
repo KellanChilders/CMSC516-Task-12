@@ -1,3 +1,10 @@
+"""
+Author      Kellan Childers
+Function    Creates an easily-modifiable dataset and offers common
+            preprocessing. It reads in a dataset, then formats it according
+            to the task 12 structure, and initializes a feature set for each
+            claim and warrant.
+"""
 import pandas as pd
 import nltk
 import re
@@ -38,6 +45,7 @@ class SemEvalData:
 
     def expand_contraction(self):
         """Replace n't with not."""
+        # To be extended in stage2.
         contractions = {"n't": ' not '}
         for key, value in self.pretext.items():
             for i, item in enumerate(value):
@@ -106,12 +114,14 @@ class SemEvalData:
             self.w_data[key][1] += bigrams[1]
 
     def remove_common(self):
+        """Remove words each claim shares."""
         self.w_data = {key: {0: [x for x in val[0] if x not in val[1]],
                              1: [x for x in val[1] if x not in val[0]]}
                        for key, val in self.w_data.items()}
 
 
 if __name__ == '__main__':
+    """Simple demonstration of capabilities of the dataset."""
     import args
     dataset = SemEvalData(file=args.train_file())
 

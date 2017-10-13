@@ -1,6 +1,13 @@
+"""
+Author      Kellan Childers
+Function    Helps parse command line arguments quickly.
+            When imported, allows a program to take cla, or show help with -h.
+"""
 from os.path import join
 
+
 def parse_args():
+    """Read in arguments to help other programs."""
     import argparse as ap
 
     parser = ap.ArgumentParser(
@@ -24,8 +31,10 @@ args = parse_args()
 
 
 def train_file():
+    """Get the full path to the training dataset (os agnostic)."""
     return join(args.d, args.trd, args.tr)
 
 
 def test_file():
+    """Get the full path to the testing dataset (os agnostic)."""
     return join(args.d, args.tsd, args.ts)

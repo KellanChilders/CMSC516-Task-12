@@ -1,5 +1,8 @@
-# Voting script.  Take confidence measures, output one dictionary as result.
-# Usage: call vote with any number of filenames as argument. e.g. vote('test*.csv')
+# Voting script.  Take confidence measures from any number of input CSV files,
+# creates one dictionary containing only the most confident predictions.
+# Dict format: Key=debate id.  Value=(prediction, confidence)
+# Usage: python3 vote.py [filenames] 
+#    CSV format: debate id, prediction, confidence
 # - wardac
 
 import csv
@@ -20,11 +23,11 @@ class Voter:
 
     def display(self):
         for k,v in self.votes.items():
-            print(k,": ", "Prediction = ",v[0],", Confidence = ",v[1],sep="")
+            print("Debate ID",k,": ", "Prediction = ",v[0],
+                    ", Confidence = ",v[1],sep="")
 
 if __name__ == '__main__':
     import sys
-
     voter = Voter()
     voter.vote(*sys.argv[1:])
     voter.display()

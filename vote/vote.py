@@ -1,5 +1,6 @@
 # Voting script.  Take confidence measures, output one dictionary as result.
-# Usage: call vote with any number of filenames as argument.
+# Usage: call vote with any number of filenames as argument. e.g. vote('test*.csv')
+# - wardac
 
 import csv
 

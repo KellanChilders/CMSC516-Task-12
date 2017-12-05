@@ -86,7 +86,7 @@ class WordEmbedder:
 
         # Find the cosine similarity between claim and warrants.
         compare = {key: {0: self.similarity(sent, claim[key][0]),
-                         1: self.similarity(sent, claim[key][0])}
+                         1: self.similarity(sent, claim[key][1])}
                    for key, sent in base.items()}
         # Pick most likely, defaulting to warrant1.
         return {key: 0 if item[0] > item[1] else 1

@@ -23,7 +23,8 @@ class WordEmbedder:
             training_corpora = kwargs.get('train', nc.brown.sents())
             min_count = kwargs.get('count', 1)
             iterations = kwargs.get('iter', 5)
-            self.model = gs.Word2Vec(training_corpora,
+            workers = kwargs.get('workers', 4)
+            self.model = gs.Word2Vec(training_corpora, workers=workers,
                                      min_count=min_count, iter=iterations)
 
         # Need one word we know is in corpus so we can create n-len vectors.

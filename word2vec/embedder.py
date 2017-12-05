@@ -8,7 +8,6 @@ import math
 from functools import reduce
 import nltk.corpus as nc
 import gensim.models as gs
-from gensim.corpora import WikiCorpus, MmCorpus
 from datasets import SemEvalData
 from wiki import Wiki
 
@@ -111,9 +110,11 @@ if __name__ == '__main__':
     dataset.add_bag_words()
 
     wiki = Wiki('enwiki-20170820-pages-articles.xml.bz2')
+    print("Wiki loaded successfully.")
 
     # Train, predict, and show as csv.
     embedder = WordEmbedder(train=wiki, save='wiki_embedder')
+    print("Word embedder saved.")
     # embedder = WordEmbedder(load='wiki_embedder', iter=1)
     # predictions = embedder.closest(dataset.p_data, dataset.w_data)
     # print(embedder.to_csv(predictions))

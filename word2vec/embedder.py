@@ -27,6 +27,10 @@ class WordEmbedder:
             self.model = gs.Word2Vec(training_corpora, workers=workers,
                                      min_count=min_count, iter=iterations)
 
+        save_file = kwargs.get('save', None)
+        if save_file is not None:
+            self.save(save_file)
+
         # Need one word we know is in corpus so we can create n-len vectors.
         baseline = kwargs.get('base', 'i')
         self.vec_length = len(self.model[baseline])
@@ -109,8 +113,7 @@ if __name__ == '__main__':
     wiki = Wiki('enwiki-20170820-pages-articles.xml.bz2')
 
     # Train, predict, and show as csv.
-    embedder = WordEmbedder(train=wiki)
-    embedder.save('wiki_embedder')
+    embedder = WordEmbedder(train=wiki, save='wiki_embedder')
     # embedder = WordEmbedder(load='wiki_embedder', iter=1)
     # predictions = embedder.closest(dataset.p_data, dataset.w_data)
     # print(embedder.to_csv(predictions))

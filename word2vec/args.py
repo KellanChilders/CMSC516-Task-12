@@ -20,9 +20,13 @@ def parse_args():
                         type=str, default='train')
     parser.add_argument('-ts', help='Testing dataset',
                         type=str, default='test.tsv')
+    parser.add_argument('-w', help='Wikipedia corpus',
+                        type=str, default='enwiki-20170820-pages-articles.xml.bz2')
     parser.add_argument('-tsd', help='Testing directory',
                         type=str, default='test')
     parser.add_argument('-t', help='Do testing',
+                        type=bool, default=False)
+    parser.add_argument('-e', help='Create wiki corpus',
                         type=bool, default=False)
     return parser.parse_args()
 
@@ -38,3 +42,8 @@ def train_file():
 def test_file():
     """Get the full path to the testing dataset (os agnostic)."""
     return join(args.d, args.tsd, args.ts)
+
+
+def wiki():
+    """Get the location of the Wikipedia corpus."""
+    return args.w

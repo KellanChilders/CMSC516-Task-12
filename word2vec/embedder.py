@@ -8,21 +8,33 @@ import math
 from functools import reduce
 import nltk.corpus as nc
 import gensim.models as gs
-# from gensim.corpora import WikiCorpus
+from gensim.corpora import WikiCorpus, MmCorpus
 from datasets import SemEvalData
+from wiki import Wiki
 
 
 class WordEmbedder:
     """Predict warrants based on word2vec similarity."""
     def __init__(self, **kwargs):
-        training_corpora = kwargs.get('train', nc.brown.sents())
-        min_count = kwargs.get('count', 1)
-        iterations = kwargs.get('iter', 5)
-        self.model = gs.Word2Vec(training_corpora,
-                                 min_count=min_count, iter=iterations)
+        load_file = kwargs.get('load', None)
+        if load_file is not None:
+            self.model = gs.Word2Vec.load(load_file)
+        else:
+            training_corpora = kwargs.get('train', nc.brown.sents())
+            min_count = kwargs.get('count', 1)
+            iterations = kwargs.get('iter', 5)
+            self.model = gs.Word2Vec(training_corpora,
+                                     min_count=min_count, iter=iterations)
+
         # Need one word we know is in corpus so we can create n-len vectors.
         baseline = kwargs.get('base', 'i')
         self.vec_length = len(self.model[baseline])
+
+    def save(self, filename):
+        self.model.save(filename)
+
+    def load(self, filename):
+        self.model = gs.Word2Vec.load(filename)
 
     def get_vector(self, sent):
         """Get the vector representations of every word in a sentence."""
@@ -93,14 +105,14 @@ if __name__ == '__main__':
     dataset.remove_common()
     dataset.add_bag_words()
 
-    # print(nc.brown.sents())
-    # wiki = WikiCorpus('wiki.en.text', lemmatize=False, dictionary={})
-    # print(wiki.get_texts())
+    wiki = Wiki('enwiki-20170820-pages-articles.xml.bz2')
 
     # Train, predict, and show as csv.
-    embedder = WordEmbedder(train=nc.brown.sents())
-    predictions = embedder.closest(dataset.p_data, dataset.w_data)
-    print(embedder.to_csv(predictions))
+    embedder = WordEmbedder(train=wiki)
+    embedder.save('wiki_embedder')
+    # embedder = WordEmbedder(load='wiki_embedder', iter=1)
+    # predictions = embedder.closest(dataset.p_data, dataset.w_data)
+    # print(embedder.to_csv(predictions))
 
     # example = '13319707_476_A1DJNUJZN8FE7N'
     # print(dataset.w_data[example][0])

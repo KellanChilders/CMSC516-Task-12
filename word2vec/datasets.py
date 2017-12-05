@@ -8,12 +8,14 @@ Function    Creates an easily-modifiable dataset and offers common
 import pandas as pd
 import nltk
 import re
+from random import shuffle
+from math import floor
 
 
 class SemEvalData:
     def __init__(self, **kwargs):
-        self.data = kwargs.get('data', {})
-        if len(self.data) > 0:
+        if kwargs.get('blank', False) is True:
+            self.__raw()
             return
 
         raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
@@ -26,6 +28,74 @@ class SemEvalData:
         # Data that has been generated from the pretext & warrants.
         self.p_data = {x[1]: [] for x in raw_data}
         self.w_data = {x[1]: {0: [], 1: []} for x in raw_data}
+
+    def __raw(self):
+        self.pretext = {}
+        self.warrants = {}
+        self.tags = {}
+        self.p_data = {}
+        self.w_data = {}
+
+    def folds(self, num_folds):
+        ids = list(self.tags.keys())
+
+        count = len(ids)
+        fold_size, additional = floor(count/num_folds), count % num_folds
+
+        order = list(range(count))
+        shuffle(order)
+
+        fold = []
+        for _ in range(num_folds):
+            fold += [[ids[i] for i in order[:fold_size]]]
+            order = order[fold_size:]
+
+        for i in range(additional):
+            fold[i] += [ids[order[0]]]
+            order = order[1:]
+
+        return fold
+
+    def datasets_from_folds(self, num_folds):
+        folds = self.folds(num_folds)
+        datasets = []
+
+        for fold in folds:
+            ds = SemEvalData(blank=True)
+            ds.pretext = {key: value for key, value in self.pretext.items() if key in fold}
+            ds.warrants = {key: value for key, value in self.warrants.items() if key in fold}
+            ds.tags = {key: value for key, value in self.tags.items() if key in fold}
+            ds.p_data = {key: value for key, value in self.p_data.items() if key in fold}
+            ds.w_data = {key: value for key, value in self.w_data.items() if key in fold}
+            datasets += [ds]
+
+        return datasets
+
+    def __add__(self, other):
+        ds = SemEvalData(blank=True)
+
+        pretext = self.pretext.copy()
+        pretext.update(other.pretext)
+        ds.pretext = pretext
+
+        warrants = self.warrants.copy()
+        warrants.update(other.warrants)
+        ds.warrants = warrants
+
+        tags = self.tags.copy()
+        tags.update(other.tags)
+        ds.tags = tags
+
+        p_data = self.p_data.copy()
+        p_data.update(other.p_data)
+        ds.p_data = p_data
+
+        w_data = self.w_data.copy()
+        w_data.update(other.w_data)
+        ds.w_data = w_data
+
+        return ds
+
 
     def remove_stop_words(self, stop=('a', 'an', 'the', 'to')):
         """Remove common words from pretext and warrants."""
@@ -125,7 +195,16 @@ if __name__ == '__main__':
     import args
     dataset = SemEvalData(file=args.train_file())
 
-    dataset.remove_stop_words()
-    dataset.tag_pos()
-    dataset.add_ngrams()
-    print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])
+    # dataset.remove_stop_words()
+    # dataset.tag_pos()
+    # dataset.add_ngrams()
+    # print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])
+
+    # print(len(dataset.pretext))
+    # print('\n'.join(str(x) for x in dataset.folds(9)))
+
+    folded_datasets = dataset.datasets_from_folds(10)
+    test = folded_datasets[0] + folded_datasets[1]
+    print(list(sorted(folded_datasets[0].tags.keys())))
+    print(list(sorted(folded_datasets[1].tags.keys())))
+    print(list(sorted(test.tags.keys())))

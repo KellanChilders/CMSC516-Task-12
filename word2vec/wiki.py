@@ -7,7 +7,7 @@ class Wiki:
 
     def __iter__(self):
         for article in self.wiki.get_texts():
-            yield [sent.split('\s') for sent in article]
+            yield [word for sent in article for word in sent.split('\s')]
 
     def save(self, filename):
         self.wiki.save(filename+'.dict')

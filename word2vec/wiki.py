@@ -1,4 +1,5 @@
 from gensim.corpora import WikiCorpus, MmCorpus
+import re
 
 
 class Wiki:
@@ -8,7 +9,7 @@ class Wiki:
     def __iter__(self):
         for article in self.wiki.get_texts():
             for sent in article:
-                yield [word for word in sent.split('\s')]
+                yield [word for word in re.split(r'\s', sent)]
 
     def save(self, filename):
         self.wiki.save(filename+'.dict')

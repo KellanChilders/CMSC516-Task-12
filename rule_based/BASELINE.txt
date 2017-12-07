@@ -1,0 +1,9 @@
+BASELINES
+AUTHOR: Megan Davis (Github: davis24)
+------------
+Being run against a baseline of 52%; this is when all the warrants are tagged as warrant1.
+
+BASELINE 52%
+
+IMPLEMENTATION on dev-full: 61.4
+IMPLEMENTATION on train-full: 50.6

@@ -51,7 +51,7 @@ class NeuralNet:
 
         tags = np.array([data.tags[i] for i in order])
         tags = np.array([.9999 if i == 1 else 0 for i in tags])
-        tags.reshape((-1, 2))
+        # tags.reshape((-1, 2))
         return input, tags, order
 
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         input, tags, order = NeuralNet.format_dataset(dataset, embedder)
 
     network = NeuralNet(input=len(input[0]), output=2)
-    loss, accuracy = network.train(input, tags, iterations=100)
+    loss, accuracy = network.train(input, tags, iterations=10)
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
     print()
     predictions = network.predict(input, order)

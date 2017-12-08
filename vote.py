@@ -43,7 +43,7 @@ if __name__ == '__main__':
     tags = {o: t for o, t in zip(order, tags)}
 
     confusion_matrix = Evaluator.compare(tags, results)
-    print('Embedder accuracy:', round(Evaluator.accuracy(confusion_matrix)
+    print('Voter accuracy:', round(Evaluator.accuracy(confusion_matrix)
                                       *100, 2), '%')
 
 

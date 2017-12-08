@@ -349,7 +349,7 @@ sub accuracy{
 sub output_confidence_csv
 {
 	# ID, TAG, CONFIDENCE
-	my $csv_file = 'perl_confidence.txt';
+	my $csv_file = 'output.csv';
 	open(my $fh, '>', $csv_file) or die "Could not open file '$csv_file' $!";
 	foreach my $key (keys %DataHash)
 	{

@@ -4,7 +4,6 @@ Function    Contains evaluation metrics & runs both baseline and embedder.
             While the other files contain demonstrations of their use,
             this file combines them all together.
 """
-from datasets import SemEvalData
 
 
 class Evaluator:
@@ -50,6 +49,8 @@ class Evaluator:
 if __name__ == '__main__':
     """Execute the entire predictor, and display accuracy."""
     import args
+    from datasets import SemEvalData
+
     try:
         dataset = SemEvalData(file=args.train_file())
     except FileNotFoundError:
@@ -61,6 +62,7 @@ if __name__ == '__main__':
 
     dataset.expand_contraction()
     dataset.remove_common()
+    dataset.add_bag_words()
 
     # Demonstrate baseline performance.
     print('Predicting via majority decider')
@@ -77,11 +79,13 @@ if __name__ == '__main__':
     # Demonstrate word embedder performance.
     print('Predicting via word embedder')
     from embedder import WordEmbedder
-    import nltk.corpus as nc
-    embedder = WordEmbedder(train=nc.brown.sents())
+    embedder = WordEmbedder(load=args.google_file())
 
     # Evaluate embedder.
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
     confusion_matrix = Evaluator.compare(dataset.tags, predictions)
     print('Embedder accuracy:', round(Evaluator.accuracy(confusion_matrix)
                                       *100, 2), '%')
+
+    with open(args.csv_file(), 'w') as writefile:
+        writefile.write(embedder.to_csv(predictions))

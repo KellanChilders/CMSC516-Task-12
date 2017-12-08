@@ -8,8 +8,6 @@ import math
 from functools import reduce
 import nltk.corpus as nc
 import gensim.models as gs
-from datasets import SemEvalData
-from wiki import Wiki
 
 
 class WordEmbedder:
@@ -17,7 +15,9 @@ class WordEmbedder:
     def __init__(self, **kwargs):
         load_file = kwargs.get('load', None)
         if load_file is not None:
-            self.model = gs.Word2Vec.load(load_file)
+            # self.model = gs.Word2Vec.load(load_file)
+            self.model = gs.KeyedVectors.load_word2vec_format(load_file,
+                                                              binary=True)
         else:
             training_corpora = kwargs.get('train', nc.brown.sents())
             min_count = kwargs.get('count', 1)
@@ -60,18 +60,14 @@ class WordEmbedder:
         vec = [reduce(lambda x, y: x + y, (v[i] for v in vector))
                for i in range(self.vec_length)]
         mag = self.distance(vec)
+
+        if mag == 0:
+            return [0 for _ in range(self.vec_length)]
+
         return [x/mag for x in vec]
 
-    def similarity(self, vec1, vec2):
-        """Calculate the cosine similarity between two vectors."""
-        if sum(vec1) == 0 or sum(vec2) == 0:
-            return 0
-        dot = sum(x*y for x, y in zip(vec1, vec2))
-
-        return dot / (self.distance(vec1)*self.distance(vec2))
-
-    def closest(self, pretext, warrants):
-        """Predict the closest warrant to the claim."""
+    def process(self, pretext, warrants):
+        """Find vectors, sum, and normalize all elements of a dataset."""
         # Find word embeddings of warrants & claim.
         base = {key: self.get_vector(sent) for key, sent in pretext.items()}
         claim = {key: {0: self.get_vector(sent[0]),
@@ -83,6 +79,20 @@ class WordEmbedder:
         claim = {key: {0: self.sum_normalize(val[0]),
                        1: self.sum_normalize(val[1])}
                  for key, val in claim.items()}
+
+        return base, claim
+
+    def similarity(self, vec1, vec2):
+        """Calculate the cosine similarity between two vectors."""
+        if sum(vec1) == 0 or sum(vec2) == 0:
+            return 0
+        dot = sum(x*y for x, y in zip(vec1, vec2))
+
+        return dot / (self.distance(vec1)*self.distance(vec2))
+
+    def closest(self, pretext, warrants):
+        """Predict the closest warrant to the claim."""
+        base, claim = self.process(pretext, warrants)
 
         # Find the cosine similarity between claim and warrants.
         compare = {key: {0: self.similarity(sent, claim[key][0]),
@@ -102,6 +112,8 @@ class WordEmbedder:
 if __name__ == '__main__':
     """Simple demonstration of embedder."""
     import args
+    from datasets import SemEvalData
+
     dataset = SemEvalData(file=args.train_file())
 
     # Some preprocessing steps for dataset.
@@ -109,16 +121,11 @@ if __name__ == '__main__':
     dataset.remove_common()
     dataset.add_bag_words()
 
-    wiki = Wiki('enwiki-20170820-pages-articles.xml.bz2')
-    print("Wiki loaded successfully.")
-
     # Train, predict, and show as csv.
-    embedder = WordEmbedder(train=wiki, save='wiki_embedder')
-    print("Word embedder saved.")
-    # embedder = WordEmbedder(load='wiki_embedder', iter=1)
-    # predictions = embedder.closest(dataset.p_data, dataset.w_data)
-    # print(embedder.to_csv(predictions))
+    embedder = WordEmbedder(load=args.google_file())
+    predictions = embedder.closest(dataset.p_data, dataset.w_data)
+    print(embedder.to_csv(predictions))
 
-    # example = '13319707_476_A1DJNUJZN8FE7N'
-    # print(dataset.w_data[example][0])
-    # print(embedder.get_vector(dataset.w_data[example][0]))
+    example = '13319707_476_A1DJNUJZN8FE7N'
+    print(dataset.w_data[example][0])
+    print(embedder.get_vector(dataset.w_data[example][0]))

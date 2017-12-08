@@ -31,45 +31,38 @@ This approach utilizes sentiment values to determine which arguement to choose. 
 
 The assumption is being made (after manual inspection of the data) that cohesive arguements contain the same rhetoric. 
 
-READ THIS NOTE: Due to the way the data is defined Warrant0 EQUALS warrant0, warrant0 EQUALS warrant1; this applies when being talked about in the algorithm and the code. This change can be confusing. There are plans to normalize this convention code drop 2.
-
-Algorthim: 
-1. Execute the command perl semeval_script.pl dev-full.txt SCL-NMA/SCL-NMA.txt -- dev-full.txt contains the problem data provided by semeval, SCL-NMA.txt is a sentiment lexicon by Saif M. Mohammad it ranks phrases as positive or negative.
-	1.1 Optionally perl semeval_script.pl dev-full.txt SCL-NMA.txt > output.file
-2. The two text files passed in will be parsed for data, including Warrants, Claim, Reason, Answer, and Reason_Claim combined.
-3. Call reason_claim_sentiment_value() -- This subroutine with take the reason and claim (which have been combined) and evaluate for the sentiment.
-	3.1) Each item with in the data is hit. 
-	3.2) The reason_claim_combined is checked for a match within all the phrases/words within SCL-NMA.
-		3.2.1) If a match is found the sentiment_value is updated by adding the matched phrase/word to sentiment value.
-		3.2.2) If not, nothing happens and enters the next iterration..
-4. Call warrant_sentiment_set() -- This subroutine takes the two warrants and evaluates for the sentiment. 
-	4.1) Each item with in the data is hit.
-		4.1.1) If a match is found the warrantx_sentiment is updated by adding the matched phrase/word to the value.
-		4.1.2) If not, nothing happens and enters the next iterration. 
-	4.2) If the warrant contains not/isnt the value is negated by multiply negative one to change it from positive or negative depending on the value.
-5. Call COMPARISON_SHOWDOWN() -- This subroutine evalutes the warrants to determine which is closer to the sentiment_value.
-	5.1) To calculate which is closer the formula used is absolute_value(sentiment_value - warrantx_sentiment)
-	5.2) If 
-		5.2.1) warrant0 < warrant1 
-			5.2.1.1) Select warrant0 as the answer
-		5.2.2) warrant1 < warrant0
-			5.2.2.1) Select warrant1 as the answer
-		5.2.3) Everything else (i.e. warrant0 equals warrant1)
-			5.2.3.1) Select warrant1 
-6) Call Accuracy() -- This subroutine compares to the answer gives versus the correct answer. 	
-	6.1) Returns the accuracy rate.
-	
-
+Algorithm:
+1. Execute the command perl semeval_script.pl <text file from Semeval_Data> <SentiWords_1.0 text file>(see semeval_script on how to acquire this data
+    1.1 Optionally perl semeval_script.pl dev-full.txt SentiWords_1.0.txt > output.file
+2. Read in dev-full.txt or train-full.txt; while being read in the data is sanitized (lowercase, \n removal, number values (0-9)), part of speech tagged using Lingua::EN::Tagger, and added to the datahash where the key is the ID.
+2.1 Once all the values in the datahash for a individual entry have been sent data_set_tag_mapping is called. Subroutine data_set_tag_mapping is used for mapping the tags from Lingua::EN::Tagger into the SentiNet_1.0 tags.
+3. Calls sentiment_value_tagging() subroutine.
+    3.1 Loop through each value in the DataHash (these will be all the items in dev-full.txt or train-full.txt)
+        3.1.1 Loop through each value of SentiWordHash and call data_value_tagging subroutine for Reason, Claim, Warrant0, and Warrant1.
+        3.1.2 data_value_tagging takes in the datahashID key, the datahash attribute, and SentiWordHashID.
+        3.1.3 Once these values are passed through the datahash text is parsed for a match.
+            3.1.3.1 If the word is found then replace the word with the word and value. I.E. trust(.125)
+4. Call data_non_tagged_words this subroutine is used to implement the backoff model, for word that have not been tagged attempt to remove -ed, -s, -ing and try to retag.
+5. Call sentiment_value_calc subroutine, this subroutine calculates the sentiment value for reason, claim, and the warrants.
+    5.1 If the text contains one of the key negation words, then all values after the negation are negated. I.E. not trusted(.125) -> not trusted(-.125).
+    5.2 If the hash item has sentiment values then begin to calculates
+        5.2.1 Call count subroutine this subroutine returns the number of words in the text which is used for normalization
+6. Call evalute_answer, this subroutine goes through each element in the DataHash and compares the assigned value versus the correct answer. It also calculates the confidence of the answer which is denoted by 1 - (the picked warrant).
+7. Call accuracy, this subroutine calculates the correct number of labels and prints out the accuracy.
+8. Call output_confidence_csv, this subroutine prints out the ID, answer, and confidence interval to perl_confidence.txt to be used in the voting system.
+    
 
 COMMAND TO RUN PROGRAM OR INPUT:
-perl semeval_script.pl dev-full.txt SCL-NMA/SCL-NMA.txt
-	
-Instances in which the Warrants are of equal sentiment value or Claim+Reason sentiment value = 0: 109
--------------- Total Labels --------------
-Correct: 169
-Total Labels: 316
-Overall Accuracy: 53.4810126582278
+perl semeval_script.pl .\Semeval_Data\train-full.txt .\SentiWords_1.0\SentiWords_1.0.txt
 
+or
+
+perl semeval_script.pl .\Semeval_Data\dev-full.txt .\SentiWords_1.0\SentiWords_1.0.txt
+    
+-------------- Total Labels --------------
+Correct: 613
+Total Labels: 1211
+Overall Accuracy: 50.6193228736581
 
 *******************************************************************
 Word2Vec Implementation:

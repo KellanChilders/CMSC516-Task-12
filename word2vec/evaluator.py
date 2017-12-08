@@ -45,6 +45,10 @@ class Evaluator:
         """Quick way to format a 2-class confusion matrix for human reading."""
         return '{}\t{}\n{}\t{}'.format(cm[0], cm[1], cm[2], cm[3])
 
+    @staticmethod
+    def simplify(pred):
+        return {key: val[0] for key, val in pred.items()}
+
 
 if __name__ == '__main__':
     """Execute the entire predictor, and display accuracy."""

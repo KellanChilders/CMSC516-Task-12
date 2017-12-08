@@ -32,6 +32,18 @@ if __name__ == '__main__':
     import sys
     voter = Voter()
     voter.vote(*sys.argv[1:])
-    voter.display()
-    print(voter.votes)
+    # voter.display()
+    # print(voter.votes)
+
+    import numpy as np
+    from word2vec.evaluator import Evaluator
+    results = Evaluator.simplify(voter.votes)
+    order = np.genfromtxt('word2vec/order.csv', dtype='|U16')
+    tags = np.genfromtxt('word2vec/tags.csv')
+    tags = {o: t for o, t in zip(order, tags)}
+
+    confusion_matrix = Evaluator.compare(tags, results)
+    print('Embedder accuracy:', round(Evaluator.accuracy(confusion_matrix)
+                                      *100, 2), '%')
+
 

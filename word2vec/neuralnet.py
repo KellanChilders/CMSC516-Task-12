@@ -38,7 +38,7 @@ class NeuralNet:
 
     @staticmethod
     def pred_to_csv(pred):
-        return '\n'.join('\t'.join([key, str(val[0]), str(val[1])])
+        return '\n'.join(','.join([key, str(val[0]), str(val[1])])
                          for key, val in pred.items())
 
     @staticmethod

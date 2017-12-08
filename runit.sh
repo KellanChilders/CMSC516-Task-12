@@ -7,4 +7,4 @@ cd ../rule_based/
 perl runit.sh
 
 cd ..
-python3 vote.py
+python3 vote.py word2vec/output.csv

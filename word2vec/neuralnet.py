@@ -26,12 +26,20 @@ class NeuralNet:
         self.net.compile(loss='sparse_categorical_crossentropy',
                          optimizer='sgd', metrics=['accuracy'])
 
-    def train(self, training, tags, iterations):
-        self.net.fit(training, tags, epochs=iterations)
-        print(self.net.evaluate(training, tags))
+    def train(self, training, tags, iterations, verbose=0):
+        self.net.fit(training, tags, epochs=iterations, verbose=verbose)
+        return self.net.evaluate(training, tags)
 
-    def predict(self, testing, tags):
-        pass
+    def predict(self, testing, order):
+        pred = self.net.predict(testing)
+        return {o: [0 if pred[i][0] > pred[i][1] else 1,
+                    pred[i][0] if pred[i][0] > pred[i][1] else pred[i][1]]
+                for o, i in zip(order, range(len(pred)))}
+
+    @staticmethod
+    def pred_to_csv(pred):
+        return '\n'.join('\t'.join([key, str(val[0]), str(val[1])])
+                         for key, val in pred.items())
 
     @staticmethod
     def format_dataset(data, embed):
@@ -44,32 +52,42 @@ class NeuralNet:
         tags = np.array([data.tags[i] for i in order])
         tags = np.array([.9999 if i == 1 else 0 for i in tags])
         tags.reshape((-1, 2))
-        return input, tags
+        return input, tags, order
 
 
 if __name__ == "__main__":
     """Sample demo of neural net"""
-    # import args
-    #
-    # try:
-    #     dataset = SemEvalData(file=args.train_file())
-    # except FileNotFoundError:
-    #     # Couldn't find dataset, will need to specify.
-    #     print('Could not find dataset at', args.train_file(),
-    #           '\nPlease set the parent dir (-d), training dir (-trd),'
-    #           'and dataset location (-tr) and execute script again.')
-    #     raise SystemExit
-    #
-    # Some preprocessing steps for dataset.
-    # dataset.expand_contraction()
-    # dataset.remove_common()
-    # dataset.add_bag_words()
-    #
-    # Train, predict, and show as csv.
-    # embedder = WordEmbedder(load=args.google_file())
-    # input, tags = NeuralNet.format_dataset(dataset, embedder)
-    input = np.genfromtxt('input.txt', delimiter=',')
-    tags = np.genfromtxt('tags.txt')
+    import args
 
-    network = NeuralNet(input=len(input[0]), output=len(tags[0]))
-    network.train(input, tags, iterations=10)
+    if args.debug():
+        input = np.genfromtxt('input.csv', delimiter=',')
+        tags = np.genfromtxt('tags.csv')
+        order = np.genfromtxt('order.csv', dtype="|U16")
+    else:
+        try:
+            dataset = SemEvalData(file=args.train_file())
+        except FileNotFoundError:
+            # Couldn't find dataset, will need to specify.
+            print('Could not find dataset at', args.train_file(),
+                  '\nPlease set the parent dir (-d), training dir (-trd),'
+                  'and dataset location (-tr) and execute script again.')
+            raise SystemExit
+
+        # Some preprocessing steps for dataset.
+        dataset.expand_contraction()
+        dataset.remove_common()
+        dataset.add_bag_words()
+
+        # Train, predict, and show as csv.
+        embedder = WordEmbedder(load=args.google_file())
+        input, tags, order = NeuralNet.format_dataset(dataset, embedder)
+
+    network = NeuralNet(input=len(input[0]), output=2)
+    loss, accuracy = network.train(input, tags, iterations=100)
+    print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
+    print()
+    predictions = network.predict(input, order)
+
+    with open('output.csv', 'w') as writefile:
+        writefile.write(network.pred_to_csv(predictions))
+

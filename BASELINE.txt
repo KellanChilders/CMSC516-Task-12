@@ -1,0 +1,11 @@
+BASELINES
+AUTHOR: Megan Davis, Kellan Childers
+------------
+
+
+The programs are being running agaisnt a baseline of 52%; this is when all the warrants are tagged as warrant1.
+
+BASELINE 52%
+RULE-BASED IMPLEMLEMENTATION: 53.4810126582278
+WORD2VEC IMPLEMLEMENTATION: 
+

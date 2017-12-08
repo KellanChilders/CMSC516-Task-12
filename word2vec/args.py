@@ -20,13 +20,15 @@ def parse_args():
                         type=str, default='train')
     parser.add_argument('-ts', help='Testing dataset',
                         type=str, default='test.tsv')
+    parser.add_argument('-tsd', help='Testing directory',
+                        type=str, default='test')
     parser.add_argument('-g', help='GoogleNews corpus',
                         type=str,
                         default='GoogleNews-vectors-negative300.bin.gz')
     parser.add_argument('-c', help='Write to csv',
                         type=str, default='word2vec.csv')
-    parser.add_argument('-tsd', help='Testing directory',
-                        type=str, default='test')
+    parser.add_argument('-dbg', help='Debug mode',
+                        action='store_true', default=False)
     parser.add_argument('-t', help='Do testing',
                         type=bool, default=False)
     return parser.parse_args()
@@ -53,3 +55,7 @@ def google_file():
 def csv_file():
     """Get the full path to the csv file (os agnostic)."""
     return abspath(args.c)
+
+
+def debug():
+    return args.dbg

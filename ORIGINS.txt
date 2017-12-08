@@ -1,0 +1,4 @@
+ORIGINS:
+
+1) SCL-NMA.txt -- http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm ### Semeval-2016 Task 7: Determining Sentiment Intensity of English and Arabic Phrases. Svetlana Kiritchenko, Saif M. Mohammad, and Mohammad Salameh. In Proceedings of the International Workshop on Semantic Evaluation (SemEval ’16). June 2016. San Diego, California.
+2) Brown Corpus -- https://www1.essex.ac.uk/linguistics/external/clmt/w3c/corpus_ling/content/corpora/list/private/brown/brown.html ### W.N. Francis et al. (1998, February 5). “The Brown Corpus” [Online]

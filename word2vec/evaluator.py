@@ -81,15 +81,24 @@ if __name__ == '__main__':
 
     print()
     # Demonstrate word embedder performance.
-    print('Predicting via word embedder')
+    print('Predicting via word embedder and similarity')
     from embedder import WordEmbedder
     embedder = WordEmbedder(load=args.google_file())
 
     # Evaluate embedder.
-    predictions = embedder.closest(dataset.p_data, dataset.w_data)
-    confusion_matrix = Evaluator.compare(dataset.tags, predictions)
-    print('Embedder accuracy:', round(Evaluator.accuracy(confusion_matrix)
-                                      *100, 2), '%')
+    embed_predictions = embedder.closest(dataset.p_data, dataset.w_data)
+    embed_cm = Evaluator.compare(dataset.tags, embed_predictions)
+    print('Similarity accuracy:', round(Evaluator.accuracy(embed_cm)
+                                        * 100, 2), '%')
+
+    print()
+    # Demonstrate neural network performance.
+    print('Predicting via word embedder and neural network')
+    from neuralnet import NeuralNet
+    input, tags, order = NeuralNet.format_dataset(dataset, embedder)
+    network = NeuralNet(input=len(input[0]), output=2)
+    loss, accuracy = network.train(input, tags, iterations=10)
+    print("Neural Network Accuracy: " + str(round(accuracy*100, 2)) + "%")
 
     with open(args.csv_file(), 'w') as writefile:
-        writefile.write(embedder.to_csv(predictions))
+        writefile.write(embedder.to_csv(embed_predictions))

@@ -2,3 +2,4 @@ ORIGINS:
 
 1) SentiWords_1.0 - Guerini M., Gatti L. & Turchi M. “Sentiment Analysis: How to Derive Prior Polarities from SentiWordNet”. In Proceedings of the 2013 Conference on Empirical Methods in Natural Language Processing (EMNLP'13), pp 1259-1269. Seattle, Washington, USA. 2013.
 2) Brown Corpus -- https://www1.essex.ac.uk/linguistics/external/clmt/w3c/corpus_ling/content/corpora/list/private/brown/brown.html ### W.N. Francis et al. (1998, February 5). “The Brown Corpus” [Online]
+3) GoogleNews pre-trained word2vec -- https://code.google.com/archive/p/word2vec/

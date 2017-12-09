@@ -90,6 +90,15 @@ class WordEmbedder:
 
         return dot / (self.distance(vec1)*self.distance(vec2))
 
+    @staticmethod
+    def confidence(comparisons):
+        greater = {key: max(val.values()) for key, val in comparisons.items()}
+        lesser = {key: min(val.values()) for key, val in comparisons.items()}
+        difference = {key: (greater[key] - lesser[key])/2 + .5
+                      for key in greater.keys()}
+
+        return difference
+
     def closest(self, pretext, warrants):
         """Predict the closest warrant to the claim."""
         base, claim = self.process(pretext, warrants)
@@ -98,14 +107,16 @@ class WordEmbedder:
         compare = {key: {0: self.similarity(sent, claim[key][0]),
                          1: self.similarity(sent, claim[key][1])}
                    for key, sent in base.items()}
+        confidence = self.confidence(compare)
+
         # Pick most likely, defaulting to warrant1.
-        return {key: 0 if item[0] > item[1] else 1
+        return {key: [0 if item[0] > item[1] else 1, confidence[key]]
                 for key, item in compare.items()}
 
     @staticmethod
     def to_csv(prediction):
         """Format into csv for storing results."""
-        return '\n'.join('{}\t{}'.format(key, value)
+        return '\n'.join('{},{},{}'.format(key, value[0], value[1])
                          for key, value in prediction.items())
 
 
@@ -124,8 +135,10 @@ if __name__ == '__main__':
     # Train, predict, and show as csv.
     embedder = WordEmbedder(load=args.google_file())
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
-    print(embedder.to_csv(predictions))
 
-    example = '13319707_476_A1DJNUJZN8FE7N'
-    print(dataset.w_data[example][0])
-    print(embedder.get_vector(dataset.w_data[example][0]))
+    with open('embed_output.csv', 'w') as writefile:
+        writefile.write(embedder.to_csv(predictions))
+
+    # example = '13319707_476_A1DJNUJZN8FE7N'
+    # print(dataset.w_data[example][0])
+    # print(embedder.get_vector(dataset.w_data[example][0]))

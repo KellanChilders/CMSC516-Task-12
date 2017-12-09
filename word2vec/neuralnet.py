@@ -82,7 +82,7 @@ if __name__ == "__main__":
         embedder = WordEmbedder(load=args.google_file())
         input, tags, order = NeuralNet.format_dataset(dataset, embedder)
 
-    network = NeuralNet(input=len(input[0]), output=2)
+    network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
     loss, accuracy = network.train(input, tags, iterations=10)
     print()
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")

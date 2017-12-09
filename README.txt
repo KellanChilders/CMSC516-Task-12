@@ -1,12 +1,12 @@
 README DOCUMENTATION:
 
-AUTHORS: Megan Davis, Kellan Childers, Andrew Ward
+AUTHORS: Kellan Childers, Megan Davis, Andrew Ward
 
 ROLES
 
 Megan Davis - Author of semeval_script.pl, and procedural implementation within powerpoint. Set up trello board.
 Andrew Ward - Author of task information/introduction and proposed approach. In addition to providing suggestions on solutions implemented. (Also implemented code not included in code drop #1)
-Kellan Childers -- Author of word2vec implementation, word2vec powerpoint details. Setup github project.
+Kellan Childers -- Author of similarity measures and neural network implementations, word2vec powerpoint details. Setup github project.
 
 SEMEVAL PROBLEM - TASK 12
 
@@ -73,7 +73,7 @@ Algorithm:
 2. Find the unigrams for each warrant and claim and use these as the warrants and claims from now on.
 2. Remove shared words from each claim (if a word.
 3. Replace n't with not.
-4. Train a word2vec network using the Brown corpus.
+4. Train a word2vec network using the GoogleNews corpus.
 5. For each argument
 	1) Use the word2vec model to embed each word in the warrants and claim.
 	2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.

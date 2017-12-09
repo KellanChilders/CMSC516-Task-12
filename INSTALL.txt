@@ -16,7 +16,9 @@ INSTALL INSTRUCTIONS FOR WORD2VEC IMPLEMENTATION
 AUTHOR: Kellan Childers
 
 Uses python3.x
-Install python packages nltk, pandas, & gensim
+Install python packages keras, nltk, pandas, & gensim
 Download the Brown corpus for nltk
 	- Quickest route is to execute <python3 -m nltk.downloader brown> in shell
 	- Must be done after installing nltk (and in environment where nltk is installed if using virtual environments)
+Download the GoogleNews pre-trained word2vec model
+    - Can be found at https://code.google.com/archive/p/word2vec/

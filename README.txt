@@ -26,7 +26,7 @@ Warrant 1 most strongly supports the argument.  Warrant 2 would suggest that eco
 
 Amplifying information from the SemEval Task web site: The challenging factor is that both options are plausible and lexically very close while leading to contradicting claims. We created a new freely licensed dataset based on authentic arguments from news comments.
 
-The two approaches taken are introduced and outlined below. The approaches were tested individually and as inputs to a voting system, arbitrating based on confidence measures.  The word-embeddings neural network approach was found to be the most accurate by far, and has been chosen as the sole model.
+The two approaches taken are introduced and outlined below. The approaches were tested individually and as inputs to a voting system, arbitrating based on confidence measures.  
 
 ******************************************************************
 Rule Based Implementation:
@@ -78,14 +78,41 @@ Algorithm:
 4. Replace n't with not.
 5. Train a word2vec network using the GoogleNews corpus.
 6. For each argument
-	1) Use the word2vec model to generate word embeddings for the "pretext" (reason+claim) and each warrant.
-	2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.
-	3) Normalize the claim and warrant vectors so they are each of magnitude 1.
+    1) Use the word2vec model to generate word embeddings for the "pretext" (reason+claim) and each warrant.
+    2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.
+    3) Normalize the claim and warrant vectors so they are each of magnitude 1.
 7. Train a neural network composed of an input layer, two ReLU layers of 128 neurons each and a softmax binary output layer.
-	1) The word embeddings (each of length N) for pretext, warrant 1, and warrant 2 are concatenated, creating an 3Nx1 "image" of the arguments to be fed to the input layer.
+    1) The word embeddings (each of length N) for pretext, warrant 1, and warrant 2 are concatenated, creating an 3Nx1 "image" of the arguments to be fed to the input layer.
     2) Dataset is split into 10 folds for cross-validation.
     3) Test on each fold left out.
 
 Executing the program:
 Run python3 evaluator.py or runit.sh
 Alternatively, run python3 evaluator.py -h to view command line arguments.
+The program may delay for a long time at the "Loading the word embedder" step because of the size of the data.
+
+Sample output:
+--------------------------------------------------------------------
+Predicting via majority decider
+Baseline accuracy: 51.07 %
+
+Loading the word embedder
+Generating similarity measures between warrants and arguments
+Similarity accuracy: 59.59 %
+
+Predicting via word embedder and neural network using 10 fold cross validation
+Using TensorFlow backend.
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+2017-12-09 01:08:26.793824: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX
+1089/1089 [==============================] - 0s 56us/step
+1089/1089 [==============================] - 0s 65us/step
+1089/1089 [==============================] - 0s 78us/step
+1089/1089 [==============================] - 0s 74us/step
+1089/1089 [==============================] - 0s 91us/step
+1089/1089 [==============================] - 0s 95us/step
+1089/1089 [==============================] - 0s 109us/step
+1089/1089 [==============================] - 0s 112us/step
+1089/1089 [==============================] - 0s 114us/step
+1089/1089 [==============================] - 0s 133us/step
+

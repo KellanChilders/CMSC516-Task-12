@@ -82,10 +82,11 @@ if __name__ == '__main__':
 
     print()
     # Demonstrate word embedder performance.
-    print('Predicting via word embedder and similarity')
+    print('Loading the word embedder')
     from embedder import WordEmbedder
     embedder = WordEmbedder(load=args.google_file())
 
+    print('Generating similarity measures')
     # Evaluate embedder.
     embed_predictions = embedder.raw_closest(dataset.p_data, dataset.w_data)
     embed_cm = Evaluator.compare(dataset.tags, embed_predictions)

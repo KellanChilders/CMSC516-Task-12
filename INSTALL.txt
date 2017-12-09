@@ -22,3 +22,4 @@ Download the Brown corpus for nltk
 	- Must be done after installing nltk (and in environment where nltk is installed if using virtual environments)
 Download the GoogleNews pre-trained word2vec model
     - Can be found at https://code.google.com/archive/p/word2vec/
+    - Place it in the word2vec/ directory

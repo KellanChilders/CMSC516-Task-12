@@ -21,7 +21,7 @@ class SemEvalData:
         raw_data = pd.read_csv(kwargs['file'], sep='\t').to_records()
 
         # Data that has been given in file.
-        self.pretext = {x[1]: list(x)[5:] for x in raw_data}
+        self.pretext = {x[1]: [x[5],x[6]] for x in raw_data}
         self.warrants = {x[1]: [x[2], x[3]] for x in raw_data}
         self.tags = {x[1]: x[4] for x in raw_data}
 

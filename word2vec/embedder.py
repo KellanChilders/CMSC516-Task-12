@@ -95,7 +95,7 @@ class WordEmbedder:
         """Get the confidence of an answer."""
         greater = {key: max(val.values()) for key, val in comparisons.items()}
         lesser = {key: min(val.values()) for key, val in comparisons.items()}
-        difference = {key: (greater[key] - lesser[key])/2 + .75
+        difference = {key: (greater[key] - lesser[key])/2 + .5
                       for key in greater.keys()}
 
         return difference

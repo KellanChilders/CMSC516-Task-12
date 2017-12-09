@@ -47,20 +47,22 @@ class SemEvalData:
         order = list(range(count))
         shuffle(order)
 
-        fold = []
+        fold, orders = [], []
         for _ in range(num_folds):
             fold += [[ids[i] for i in order[:fold_size]]]
+            orders += [order[:fold_size]]
             order = order[fold_size:]
 
         for i in range(additional):
             fold[i] += [ids[order[0]]]
+            orders[i] += [order[0]]
             order = order[1:]
 
-        return fold
+        return fold, orders
 
     def datasets_from_folds(self, num_folds):
         """Create datasets from a set of folds."""
-        folds = self.folds(num_folds)
+        folds, orders = self.folds(num_folds)
         datasets = []
 
         for fold in folds:
@@ -77,7 +79,7 @@ class SemEvalData:
                          if key in fold}
             datasets += [ds]
 
-        return datasets
+        return datasets, orders
 
     def remove_stop_words(self, stop=('a', 'an', 'the', 'to')):
         """Remove common words from pretext and warrants."""
@@ -204,13 +206,14 @@ if __name__ == '__main__':
     dataset.remove_stop_words()
     dataset.tag_pos()
     dataset.add_ngrams()
-    print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])
+    # print(dataset.w_data['13319707_476_A1DJNUJZN8FE7N'])
 
     # print(len(dataset.pretext))
     # print('\n'.join(str(x) for x in dataset.folds(9)))
 
-    folded_datasets = dataset.datasets_from_folds(10)
+    folded_datasets, orders = dataset.datasets_from_folds(10)
     test = folded_datasets[0] + folded_datasets[1]
-    # print(list(sorted(folded_datasets[0].tags.keys())))
-    # print(list(sorted(folded_datasets[1].tags.keys())))
-    # print(list(sorted(test.tags.keys())))
+    # print('\n'.join(str(len(o)) for o in orders))
+    print(list(sorted(folded_datasets[0].tags.keys())))
+    print(list(sorted(folded_datasets[1].tags.keys())))
+    print(list(sorted(test.tags.keys())))

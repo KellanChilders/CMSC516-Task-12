@@ -78,30 +78,45 @@ if __name__ == "__main__":
               'and dataset location (-tr) and execute script again.')
         raise SystemExit
 
-    if args.debug():
-        input = np.genfromtxt('input.csv', delimiter=',')
-        tags = np.genfromtxt('tags.csv')
-        order = sorted(dataset.tags.keys())
-    else:
+    # Some preprocessing steps for dataset.
+    dataset.expand_contraction()
+    dataset.remove_common()
+    dataset.add_bag_words()
 
-        # Some preprocessing steps for dataset.
-        dataset.expand_contraction()
-        dataset.remove_common()
-        dataset.add_bag_words()
+    # Train, predict, and show as csv.
+    embedder = WordEmbedder(load=args.google_file())
 
-        # Train, predict, and show as csv.
-        embedder = WordEmbedder(load=args.google_file())
-        input, tags, order = NeuralNet.format_dataset(dataset, embedder)
+    # Create 10 folds for cross validation.
+    num_folds = 10
+    datasets, orders = dataset.datasets_from_folds(num_folds)
 
-    # Train the network.
-    network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
-    loss, accuracy = network.train(input, tags, iterations=10)
-    print()
+    accuracies = []
+    predictions = {}
+    for i in range(num_folds):
+        # Create a dataset of the non-test datasets.
+        ds = SemEvalData(blank=True)
+        for j in range(num_folds):
+            if j != i:
+                ds = ds + datasets[j]
+
+        input, tags, order = NeuralNet.format_dataset(ds, embedder)
+
+        # Train the network.
+        network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
+
+        # Train on non-test datasets.
+        loss, accuracy = network.train(input, tags, iterations=10)
+        accuracies += [accuracy]
+
+        # Test on test dataset.
+        test, _, order = NeuralNet.format_dataset(datasets[i], embedder)
+        predictions.update(network.predict(test, order))
+
+    # Take the average of the accuracies for overall accuracy.
+    accuracy = sum(accuracies)/len(accuracies)
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
-    print()
-    predictions = network.predict(input, order)
 
     # Save the networks results.
     with open('output.csv', 'w') as writefile:
-        writefile.write(network.pred_to_csv(predictions))
+        writefile.write(NeuralNet.pred_to_csv(predictions))
 

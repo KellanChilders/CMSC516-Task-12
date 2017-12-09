@@ -87,7 +87,7 @@ if __name__ == '__main__':
     embedder = WordEmbedder(load=args.google_file())
 
     # Evaluate embedder.
-    embed_predictions = embedder.closest(dataset.p_data, dataset.w_data)
+    embed_predictions = embedder.raw_closest(dataset.p_data, dataset.w_data)
     embed_cm = Evaluator.compare(dataset.tags, embed_predictions)
     print('Similarity accuracy:', round(Evaluator.accuracy(embed_cm)
                                         * 100, 2), '%')

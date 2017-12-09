@@ -94,12 +94,38 @@ if __name__ == '__main__':
 
     print()
     # Demonstrate neural network performance.
-    print('Predicting via word embedder and neural network')
+    print('Predicting via word embedder and neural network',
+          'using 10 fold cross validation')
     from neuralnet import NeuralNet
-    input, tags, order = NeuralNet.format_dataset(dataset, embedder)
-    network = NeuralNet(input=len(input[0]), output=2)
-    loss, accuracy = network.train(input, tags, iterations=10)
-    network_predictions = network.predict(input, order)
+
+    # Create 10 folds for cross validation.
+    num_folds = 10
+    datasets, orders = dataset.datasets_from_folds(num_folds)
+
+    accuracies = []
+    network_predictions = {}
+    for i in range(num_folds):
+        # Create a dataset of the non-test datasets.
+        ds = SemEvalData(blank=True)
+        for j in range(num_folds):
+            if j != i:
+                ds = ds + datasets[j]
+
+        input, tags, order = NeuralNet.format_dataset(ds, embedder)
+
+        # Train the network.
+        network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
+
+        # Train on non-test datasets.
+        loss, accuracy = network.train(input, tags, iterations=10)
+        accuracies += [accuracy]
+
+        # Test on test dataset.
+        test, _, order = NeuralNet.format_dataset(datasets[i], embedder)
+        network_predictions.update(network.predict(test, order))
+
+    # Take the average of the accuracies for overall accuracy.
+    accuracy = sum(accuracies) / len(accuracies)
     print("Neural Network Accuracy: " + str(round(accuracy*100, 2)) + "%")
 
     # Save similarity measures to csv.
@@ -108,4 +134,4 @@ if __name__ == '__main__':
 
     # Save neural network to csv.
     with open('output.csv', 'w') as writefile:
-        writefile.write(network.pred_to_csv(network_predictions))
+        writefile.write(NeuralNet.pred_to_csv(network_predictions))

@@ -8,6 +8,7 @@ Function    Contains a simple neural network implementation via Keras.
 import numpy as np
 import keras.models as km
 import keras.layers as kl
+import keras.utils as ku
 from datasets import SemEvalData
 from embedder import WordEmbedder
 
@@ -61,7 +62,7 @@ class NeuralNet:
                               for i in order))
 
         tags = np.array([data.tags[i] for i in order])
-        tags = np.array([(0, .9999) if i == 1 else (0.9999, 0) for i in tags])
+        # tags = ku.to_categorical(tags, 2)
         return input, tags, order
 
 
@@ -94,7 +95,7 @@ if __name__ == "__main__":
 
     # Train the network.
     network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
-    loss, accuracy = network.train(input, tags, iterations=100)
+    loss, accuracy = network.train(input, tags, iterations=10)
     print()
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
     print()

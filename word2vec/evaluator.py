@@ -118,7 +118,7 @@ if __name__ == '__main__':
         network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
 
         # Train on non-test datasets.
-        loss, accuracy = network.train(input, tags, iterations=10)
+        loss, accuracy = network.train(input, tags, iterations=100)
         accuracies += [accuracy]
 
         # Test on test dataset.

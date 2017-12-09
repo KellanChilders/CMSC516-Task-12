@@ -7,3 +7,6 @@ echo
 
 cd word2vec
 python3 evaluator.py
+
+cd ..
+python3 voter.py word2vec/output.csv word2vec/embed_output.csv rule_based/output.csv

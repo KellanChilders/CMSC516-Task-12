@@ -112,9 +112,10 @@ if __name__ == "__main__":
         test, _, order = NeuralNet.format_dataset(datasets[i], embedder)
         predictions.update(network.predict(test, order))
 
-    # Take the average of the accuracies for overall accuracy.
-    accuracy = sum(accuracies)/len(accuracies)
-    print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
+    from evaluator import Evaluator
+    neural_cm = Evaluator.compare(dataset.tags, predictions)
+    print("Neural Network Accuracy: " + str(round(
+        Evaluator.accuracy(neural_cm)*100, 2)) + "%")
 
     # Save the networks results.
     with open('output.csv', 'w') as writefile:

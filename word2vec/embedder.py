@@ -114,20 +114,6 @@ class WordEmbedder:
         return {key: [0 if item[0] > item[1] else 1, confidence[key]]
                 for key, item in compare.items()}
 
-    def raw_closest(self, pretext, warrants):
-        """Predict the closest warrant to the claim."""
-        base, claim = self.process(pretext, warrants)
-
-        # Find the cosine similarity between claim and warrants.
-        compare = {key: {0: self.similarity(sent, claim[key][0]),
-                         1: self.similarity(sent, claim[key][1])}
-                   for key, sent in base.items()}
-        confidence = self.confidence(compare)
-
-        # Pick most likely, defaulting to warrant1.
-        return {key: 0 if item[0] > item[1] else 1
-                for key, item in compare.items()}
-
     @staticmethod
     def to_csv(prediction):
         """Format into csv for storing results."""
@@ -149,7 +135,7 @@ if __name__ == '__main__':
 
     # Train, predict, and show as csv.
     embedder = WordEmbedder(load=args.google_file())
-    predictions = embedder.raw_closest(dataset.p_data, dataset.w_data)
+    predictions = embedder.closest(dataset.p_data, dataset.w_data)
 
     # Save predictions to csv.
     with open('embed_output.csv', 'w') as writefile:

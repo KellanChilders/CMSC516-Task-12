@@ -29,6 +29,20 @@ class Evaluator:
         return [tp, fp, fn, tn]
 
     @staticmethod
+    def confidence_compare(actual, predicted):
+        """Generate a confusion matrix from data with a confidence metric.
+        Must be done before other evaluations."""
+        tp = len([1 for key, act in actual.items()
+                  if act == predicted[key][0] == 0])
+        fp = len([1 for key, act in actual.items()
+                  if act != predicted[key][0] and predicted[key][0] == 0])
+        fn = len([1 for key, act in actual.items()
+                  if act != predicted[key][0] and predicted[key][0] == 1])
+        tn = len([1 for key, act in actual.items()
+                  if act == predicted[key][0] == 1])
+        return [tp, fp, fn, tn]
+
+    @staticmethod
     def accuracy(cm):
         return (cm[0]+cm[3])/sum(cm)
 
@@ -88,8 +102,8 @@ if __name__ == '__main__':
 
     print('Generating similarity measures')
     # Evaluate embedder.
-    embed_predictions = embedder.raw_closest(dataset.p_data, dataset.w_data)
-    embed_cm = Evaluator.compare(dataset.tags, embed_predictions)
+    embed_predictions = embedder.closest(dataset.p_data, dataset.w_data)
+    embed_cm = Evaluator.confidence_compare(dataset.tags, embed_predictions)
     print('Similarity accuracy:', round(Evaluator.accuracy(embed_cm)
                                         * 100, 2), '%')
 
@@ -125,9 +139,10 @@ if __name__ == '__main__':
         test, _, order = NeuralNet.format_dataset(datasets[i], embedder)
         network_predictions.update(network.predict(test, order))
 
-    # Take the average of the accuracies for overall accuracy.
-    accuracy = sum(accuracies) / len(accuracies)
-    print("Neural Network Accuracy: " + str(round(accuracy*100, 2)) + "%")
+    # Evaluate neural network.
+    neural_cm = Evaluator.confidence_compare(dataset.tags, network_predictions)
+    print("Neural Network Accuracy: " + str(round(
+        Evaluator.accuracy(neural_cm)*100, 2)) + "%")
 
     # Save similarity measures to csv.
     with open(args.csv_file(), 'w') as writefile:

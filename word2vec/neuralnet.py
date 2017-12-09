@@ -58,20 +58,20 @@ class NeuralNet:
 if __name__ == "__main__":
     """Sample demo of neural net"""
     import args
+    try:
+        dataset = SemEvalData(file=args.train_file())
+    except FileNotFoundError:
+        # Couldn't find dataset, will need to specify.
+        print('Could not find dataset at', args.train_file(),
+              '\nPlease set the parent dir (-d), training dir (-trd),'
+              'and dataset location (-tr) and execute script again.')
+        raise SystemExit
 
     if args.debug():
         input = np.genfromtxt('input.csv', delimiter=',')
         tags = np.genfromtxt('tags.csv')
-        order = np.genfromtxt('order.csv', dtype="|U16")
+        order = sorted(dataset.tags.keys())
     else:
-        try:
-            dataset = SemEvalData(file=args.train_file())
-        except FileNotFoundError:
-            # Couldn't find dataset, will need to specify.
-            print('Could not find dataset at', args.train_file(),
-                  '\nPlease set the parent dir (-d), training dir (-trd),'
-                  'and dataset location (-tr) and execute script again.')
-            raise SystemExit
 
         # Some preprocessing steps for dataset.
         dataset.expand_contraction()
@@ -84,6 +84,7 @@ if __name__ == "__main__":
 
     network = NeuralNet(input=len(input[0]), output=2)
     loss, accuracy = network.train(input, tags, iterations=10)
+    print()
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
     print()
     predictions = network.predict(input, order)

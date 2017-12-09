@@ -13,8 +13,8 @@ class Voter:
         self.votes={}
 
     def vote(self, *filenames):
-        for idx, fn in enumerate(filenames):
-            csvfile = open(fn, newline='')
+        for file in filenames:
+            csvfile = open(file, newline='')
             confid = csv.reader(csvfile)
             for row in confid:
                 if ((row[0] not in self.votes) or
@@ -30,17 +30,20 @@ class Voter:
 
 if __name__ == '__main__':
     import sys
+    from os.path import join
+
     voter = Voter()
     voter.vote(*sys.argv[1:])
     # voter.display()
     # print(voter.votes)
 
-    import numpy as np
+    from word2vec.datasets import SemEvalData
+    dataset = SemEvalData(file=join('word2vec', 'data',
+                                    'train', 'train-full.txt'))
+
     from word2vec.evaluator import Evaluator
     results = Evaluator.simplify(voter.votes)
-    order = np.genfromtxt('word2vec/order.csv', dtype='|U16')
-    tags = np.genfromtxt('word2vec/tags.csv')
-    tags = {o: t for o, t in zip(order, tags)}
+    tags = dataset.tags
 
     confusion_matrix = Evaluator.compare(tags, results)
     print('Voter accuracy:', round(Evaluator.accuracy(confusion_matrix)

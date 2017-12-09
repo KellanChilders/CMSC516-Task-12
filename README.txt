@@ -5,12 +5,12 @@ AUTHORS: Kellan Childers, Megan Davis, Andrew Ward
 ROLES
 
 Megan Davis - Author of semeval_script.pl, and procedural implementation within powerpoint. Set up trello board.
-Andrew Ward - Author of task information/introduction and proposed approach. In addition to providing suggestions on solutions implemented. (Also implemented code not included in code drop #1)
-Kellan Childers -- Author of similarity measures and neural network implementations, word2vec powerpoint details. Setup github project.
+Andrew Ward - Author of task information/introduction and proposed approach in powerpoint.  Author of voting system script.  Contributed to development of word2vec implementation, and para2vec implementation (retired and superseded by w2v+NN approach).
+Kellan Childers -- Author of similarity measures and neural network (trained on word embeddings) implementation, word2vec powerpoint details. Setup github project.
 
 SEMEVAL PROBLEM - TASK 12
 
-Given an arguement consisting of a claim and reason, select the correct warrant that explains the reasoning of the arguement.
+Given an arguement consisting of a claim and reason, select the correct warrant that explains the reasoning of the argument.  
 
 Ex:
 
@@ -23,7 +23,7 @@ Warrant 2: non-scientific fields can be useful
 ... thus, Economists are overrated (Claim)
 
 
-The two approaches taken are introduced and outlined below. The approaches were tested individually and as a voter, and the neural network was found to be the most accurate, thus represents the final model.
+The two approaches taken are introduced and outlined below. The approaches were tested individually and as a voter.  The neural network approach was found to be the most accurate, thus represents the final model.
 
 ******************************************************************
 Rule Based Implementation:
@@ -66,21 +66,22 @@ Overall Accuracy: 50.6193228736581
 
 *******************************************************************
 Word2Vec Implementation:
-This approach attempts to look at the relatedness between the two warrants and the claim. The hypothesis is that a warrant following the emotion of the claim would be more likely to be authored by the same individual.
+This approach attempts to look at the relatedness between the two warrants, the reason, and the claim.  The hypothesis is that the rhetoric, idiolect, and sentiment will be consistent in a cohesive argument.  
 
 Algorithm:
 1. Load the dataset, and separate it into claim (everything except warrants & tag), warrants, and true tag.
 2. Find the unigrams for each warrant and claim and use these as the warrants and claims from now on.
-2. Remove shared words from each claim (if a word.
-3. Replace n't with not.
-4. Train a word2vec network using the GoogleNews corpus.
-5. For each argument
-	1) Use the word2vec model to embed each word in the warrants and claim.
+3. Remove words common to each warrant.  
+4. Replace n't with not.
+5. Train a word2vec network using the GoogleNews corpus.
+6. For each argument
+	1) Use the word2vec model to generate word embeddings for the "pretext" (reason+claim) and each warrant.
 	2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.
 	3) Normalize the claim and warrant vectors so they are each of magnitude 1.
-6. Train a neural network composed of two layers of 128 neurons each and a softmax output layer
-    1) Split dataset into 10 folds for cross validation.
-    2) Test on each fold left out.
+7. Train a neural network composed of an input layer, two ReLU layers of 128 neurons each and a softmax binary output layer.
+	1) The word embeddings (each of length N) for pretext, warrant 1, and warrant 2 are concatenated, creating an 3Nx1 "image" of the arguments to be fed to the input layer.
+    2) Dataset is split into 10 folds for cross-validation.
+    3) Test on each fold left out.
 
 Executing the program:
 Run python3 evaluator.py or runit.sh

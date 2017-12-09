@@ -1,15 +1,14 @@
 BASELINES
-AUTHOR: Kellan Childers, Megan Davis
+AUTHOR: Kellan Childers, Megan Davis, Andrew Ward
 ------------
 
 Being run against a baseline of 51.07%; this is when all the warrants are tagged as warrant1.
 
 BASELINE 51.07%
 
-RULE BASED IMPLEMENTATION on dev-full (subset of train-full): 61.4
-RULE BASED IMPLEMENTATION on train-full: 50.6
-SIMILARITY IMPLEMLEMENTATION on train-full: 58.18%
+KNOWLEDGE BASED IMPLEMENTATION on dev-full (subset of train-full): 61.4
+KNOWLEDGE BASED IMPLEMENTATION on train-full: 50.6
+WORD EMBEDDINGS COSINE SIMILARITY IMPLEMLEMENTATION on train-full: 58.18%
 
-
-NEURAL NETWORK IMPLEMENTATION (final) on train-full: ~88.2%
+WORD EMBEDDINGS-TRAINED NEURAL NETWORK IMPLEMENTATION (final) on train-full: ~88.2%
 

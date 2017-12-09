@@ -58,4 +58,5 @@ def csv_file():
 
 
 def debug():
+    """Tag for neural network to use debug datasets."""
     return args.dbg

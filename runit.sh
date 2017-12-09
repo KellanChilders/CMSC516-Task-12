@@ -1,8 +1,7 @@
 #!/bin/sh
 
 cd word2vec
-python3 neuralnet.py
-python3 embedder.py
+python3 evaluator.py
 
 cd ../rule_based/
 perl runit.sh

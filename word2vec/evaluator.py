@@ -47,6 +47,7 @@ class Evaluator:
 
     @staticmethod
     def simplify(pred):
+        """Reduce prediction into manageable chunk."""
         return {key: val[0] for key, val in pred.items()}
 
 
@@ -98,7 +99,13 @@ if __name__ == '__main__':
     input, tags, order = NeuralNet.format_dataset(dataset, embedder)
     network = NeuralNet(input=len(input[0]), output=2)
     loss, accuracy = network.train(input, tags, iterations=10)
+    network_predictions = network.predict(input, order)
     print("Neural Network Accuracy: " + str(round(accuracy*100, 2)) + "%")
 
+    # Save similarity measures to csv.
     with open(args.csv_file(), 'w') as writefile:
         writefile.write(embedder.to_csv(embed_predictions))
+
+    # Save neural network to csv.
+    with open('output.csv', 'w') as writefile:
+        writefile.write(network.pred_to_csv(network_predictions))

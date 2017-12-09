@@ -30,6 +30,7 @@ class SemEvalData:
         self.w_data = {x[1]: {0: [], 1: []} for x in raw_data}
 
     def __raw(self):
+        """Reset all dictionaries."""
         self.pretext = {}
         self.warrants = {}
         self.tags = {}
@@ -37,6 +38,7 @@ class SemEvalData:
         self.w_data = {}
 
     def folds(self, num_folds):
+        """Create even folds."""
         ids = list(self.tags.keys())
 
         count = len(ids)
@@ -57,6 +59,7 @@ class SemEvalData:
         return fold
 
     def datasets_from_folds(self, num_folds):
+        """Create datasets from a set of folds."""
         folds = self.folds(num_folds)
         datasets = []
 
@@ -94,7 +97,6 @@ class SemEvalData:
 
     def expand_contraction(self):
         """Replace n't with not."""
-        # To be extended in stage2.
         contractions = {"n't": ' not '}
         for key, value in self.pretext.items():
             for i, item in enumerate(value):

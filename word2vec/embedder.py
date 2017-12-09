@@ -92,9 +92,10 @@ class WordEmbedder:
 
     @staticmethod
     def confidence(comparisons):
+        """Get the confidence of an answer."""
         greater = {key: max(val.values()) for key, val in comparisons.items()}
         lesser = {key: min(val.values()) for key, val in comparisons.items()}
-        difference = {key: (greater[key] - lesser[key])/2 + .5
+        difference = {key: (greater[key] - lesser[key])/2 + .75
                       for key in greater.keys()}
 
         return difference
@@ -136,9 +137,6 @@ if __name__ == '__main__':
     embedder = WordEmbedder(load=args.google_file())
     predictions = embedder.closest(dataset.p_data, dataset.w_data)
 
+    # Save predictions to csv.
     with open('embed_output.csv', 'w') as writefile:
         writefile.write(embedder.to_csv(predictions))
-
-    # example = '13319707_476_A1DJNUJZN8FE7N'
-    # print(dataset.w_data[example][0])
-    # print(embedder.get_vector(dataset.w_data[example][0]))

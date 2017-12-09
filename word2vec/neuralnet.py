@@ -1,3 +1,10 @@
+"""
+Author      Kellan Childers
+Function    Contains a simple neural network implementation via Keras.
+            The neural net uses the embeddings of the warrants and pretext
+            to determine the warrant that supports the pretext.
+"""
+
 import numpy as np
 import keras.models as km
 import keras.layers as kl
@@ -24,13 +31,15 @@ class NeuralNet:
         self.net.add(kl.Dense(units=output_dim, activation='softmax'))
 
         self.net.compile(loss='sparse_categorical_crossentropy',
-                         optimizer='sgd', metrics=['accuracy'])
+                         optimizer='adam', metrics=['accuracy'])
 
     def train(self, training, tags, iterations, verbose=0):
+        """Train on a dataset."""
         self.net.fit(training, tags, epochs=iterations, verbose=verbose)
         return self.net.evaluate(training, tags)
 
     def predict(self, testing, order):
+        """Predict a dataset."""
         pred = self.net.predict(testing)
         return {o: [0 if pred[i][0] > pred[i][1] else 1,
                     pred[i][0] if pred[i][0] > pred[i][1] else pred[i][1]]
@@ -38,11 +47,13 @@ class NeuralNet:
 
     @staticmethod
     def pred_to_csv(pred):
+        """Create a csv file for a set of predictions."""
         return '\n'.join(','.join([key, str(val[0]), str(val[1])])
                          for key, val in pred.items())
 
     @staticmethod
     def format_dataset(data, embed):
+        """Create a feature set the network can interpet."""
         order = sorted(data.tags.keys())
         base, claim = embed.process(data.p_data, data.w_data)
 
@@ -50,8 +61,7 @@ class NeuralNet:
                               for i in order))
 
         tags = np.array([data.tags[i] for i in order])
-        tags = np.array([.9999 if i == 1 else 0 for i in tags])
-        # tags.reshape((-1, 2))
+        tags = np.array([(0, .9999) if i == 1 else (0.9999, 0) for i in tags])
         return input, tags, order
 
 
@@ -82,13 +92,15 @@ if __name__ == "__main__":
         embedder = WordEmbedder(load=args.google_file())
         input, tags, order = NeuralNet.format_dataset(dataset, embedder)
 
+    # Train the network.
     network = NeuralNet(hidden=128, layers=2, input=len(input[0]), output=2)
-    loss, accuracy = network.train(input, tags, iterations=10)
+    loss, accuracy = network.train(input, tags, iterations=100)
     print()
     print("Accuracy: " + str(round(accuracy*100, 2)) + "%")
     print()
     predictions = network.predict(input, order)
 
+    # Save the networks results.
     with open('output.csv', 'w') as writefile:
         writefile.write(network.pred_to_csv(predictions))
 

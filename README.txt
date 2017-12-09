@@ -23,7 +23,7 @@ Warrant 2: non-scientific fields can be useful
 ... thus, Economists are overrated (Claim)
 
 
-The two approaches taken are introduced and outlined below.
+The two approaches taken are introduced and outlined below. The approaches were tested individually and as a voter, and the neural network was found to be the most accurate, thus represents the final model.
 
 ******************************************************************
 Rule Based Implementation:
@@ -78,8 +78,9 @@ Algorithm:
 	1) Use the word2vec model to embed each word in the warrants and claim.
 	2) Sum together the word vectors in the claim and warrants, leaving each as a single vector.
 	3) Normalize the claim and warrant vectors so they are each of magnitude 1.
-	4) Take the cosine similarity between the claim and each warrant.
-	6) Predict the warrant with the highest similarity, or warrant 1 if equal.
+6. Train a neural network composed of two layers of 128 neurons each and a softmax output layer
+    1) Split dataset into 10 folds for cross validation.
+    2) Test on each fold left out.
 
 Executing the program:
 Run python3 evaluator.py or runit.sh

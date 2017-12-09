@@ -131,7 +131,7 @@ class WordEmbedder:
     @staticmethod
     def to_csv(prediction):
         """Format into csv for storing results."""
-        return '\n'.join('{},{},{}'.format(key, value[0], value[1])
+        return '\n'.join('{},{}'.format(key, value)
                          for key, value in prediction.items())
 
 

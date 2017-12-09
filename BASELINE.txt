@@ -9,7 +9,7 @@ BASELINE 51.07%
 RULE BASED IMPLEMENTATION on dev-full (subset of train-full): 61.4
 RULE BASED IMPLEMENTATION on train-full: 50.6
 SIMILARITY IMPLEMLEMENTATION on train-full: 58.18%
-NEURAL NETWORK IMPLEMENTATION on train-full: 48.93%
 
-OVERALL on train-full: %
+
+NEURAL NETWORK IMPLEMENTATION (final) on train-full: ~88.2%
 

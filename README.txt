@@ -10,7 +10,7 @@ Kellan Childers -- Author of similarity measures and neural network (trained on 
 
 SEMEVAL PROBLEM - TASK 12
 
-Given an arguement consisting of a claim and reason, select the correct warrant that explains the reasoning of the argument.  
+Given an argument consisting of a claim and reason, select the correct warrant that explains the reasoning of the argument.  There are only two options given and only one answer is correct.  
 
 Ex:
 
@@ -22,8 +22,11 @@ Warrant 1: non-scientific fields can’t be useful
 Warrant 2: non-scientific fields can be useful
 ... thus, Economists are overrated (Claim)
 
+Warrant 1 most strongly supports the argument.  Warrant 2 would suggest that economists are not necessarily overrated.
 
-The two approaches taken are introduced and outlined below. The approaches were tested individually and as a voter.  The neural network approach was found to be the most accurate, thus represents the final model.
+Amplifying information from the SemEval Task web site: The challenging factor is that both options are plausible and lexically very close while leading to contradicting claims. We created a new freely licensed dataset based on authentic arguments from news comments.
+
+The two approaches taken are introduced and outlined below. The approaches were tested individually and as inputs to a voting system, arbitrating based on confidence measures.  The word-embeddings neural network approach was found to be the most accurate by far, and has been chosen as the sole model.
 
 ******************************************************************
 Rule Based Implementation:
